@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import dotenv
 from .secret import DATABASES
-dotenv.load_dotenv(os.path.join(
+dotenv.read_dotenv(os.path.join(
     os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
