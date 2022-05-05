@@ -9,7 +9,7 @@ services:
       start_period: 60s
     build:
       dockerfile: ./dockerfile
-      context : .
+      context : ../
     container_name : ${CONTAINER_NAME}
     volumes:
         - ./docker_projects/nginx__1/data/site_projects/waiting/media:/usr/src/app/media
