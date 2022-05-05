@@ -14,4 +14,3 @@ RUN pip3 install -r requirements.txt
 
 RUN apk del build-deps
 ENTRYPOINT python manage.py makemigrations && python manage.py migrate && gunicorn --bind 0:${PORT} waitinghow.wsgi
-#
