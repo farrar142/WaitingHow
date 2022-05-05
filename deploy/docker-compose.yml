@@ -12,8 +12,8 @@ services:
       context : ../
     container_name : ${CONTAINER_NAME}
     volumes:
-        - ./docker_projects/nginx__1/data/site_projects/waiting/media:/usr/src/app/media
-        - ./docker_projects/nginx__1/data/site_projects/waiting/static:/usr/src/app/static
+        - /server/initial/docker_projects/nginx__1/data/site_projects/waiting/media:/usr/src/app/media
+        - /server/initial/docker_projects/nginx__1/data/site_projects/waiting/static:/usr/src/app/static
     ports:
         - ${PORT}:8040
     restart: unless-stopped
