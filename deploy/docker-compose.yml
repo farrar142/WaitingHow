@@ -17,6 +17,6 @@ services:
     ports:
         - ${PORT}:8040
     restart: unless-stopped
-    command: sh command.sh
+    command: sh deploy/command.sh
     # cpus: .10
     # mem_limit: "512M"
