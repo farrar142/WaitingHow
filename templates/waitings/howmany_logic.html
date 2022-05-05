@@ -1,0 +1,34 @@
+<script type="text/javascript">
+$(function(){
+    $('.adults_plus').click(function(evt) {
+        $('.adults').each(function(idx, ele) {
+            $(ele).val(parseInt($(ele).val())+1);
+        });
+        evt.preventDefault();
+    });
+    $('.adults_minus').click(function(evt) {
+        if($('.adults').val()>0){
+            $('.adults').each(function(idx, ele) {
+                $(ele).val(parseInt($(ele).val())-1);
+            });
+            evt.preventDefault();
+        }
+        return false;
+    });
+    $('.kids_plus').click(function(evt) {
+        $('.kids').each(function(idx, ele) {
+            $(ele).val(parseInt($(ele).val())+1);
+        });
+        evt.preventDefault();
+    });
+    $('.kids_minus').click(function(evt) {
+        if($('.kids').val()>0){
+            $('.kids').each(function(idx, ele) {
+                $(ele).val(parseInt($(ele).val())-1);
+            });
+            evt.preventDefault();
+        }
+        return false;
+    });
+});
+</script>

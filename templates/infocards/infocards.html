@@ -1,0 +1,60 @@
+{% extends 'shops/layout.html' %}
+{% block scripts %}
+{% endblock %}
+{% block content%}
+<div>
+    {% for category in shop.category_set.all %}
+        <form action="{% url 'infocards:menu_remove' shop.id %}" method="post">
+            {% csrf_token %}
+            
+            <div><h1>{{category}}</h1><button type="submit">삭제</button></div>
+            {% comment %} type과 cat_id를 request.POST로 get해서 객체호출 {% endcomment %}
+            <input type="text" name="type" value="category" style="display:none">
+            <input type="text" name="cat_id" value="{{category.id}}" style="display:none">
+        </form>
+            
+        <table style="margin:auto;">
+            <th>메뉴이름</th>
+            <th>메뉴설명</th>
+            <th>가격</th>
+            <th></th>
+            <tbody>
+                {% for menu in category.menu_set.all %}
+                    <tr>
+                        <td>{{menu}}</td>
+                        <td>{{menu.content}}</td>
+                        <td>{{menu.price}}원</td>
+                        <td>
+                            <form action="{% url 'infocards:menu_remove' shop.id %}" method="post">
+                                {% csrf_token %}
+                                    <button type="submit">삭제</button>
+                                {% comment %} type과 cat_id를 request.POST로 get해서 객체호출 {% endcomment %}
+                                <input type="text" name="type" value="menu" style="display:none">
+                                <input type="text" name="men_id" value="{{menu.id}}" style="display:none">                            
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form action="{% url 'infocards:infocard' shop.id %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="type" value="menu" style="display:none">
+            <input type="text" name="cat_id" value="{{category.id}}" style="display:none">
+            <input type="text" name="name" placeholder='메뉴이름을 입력해주세요' value="{{men_form.name.value|default:''}}"><br>
+            <input type="text" name="content" placeholder='메뉴설명을 입력해주세요' value="{{men_form.content.value|default:''}}"><br>
+            <input type="number" name="price" placeholder='메뉴가격을 입력해주세요' value="{{men_form.price.value|default:''}}"><br>
+            <button type="submit">확인</button>
+        </form>
+    {% endfor %}
+    <form action="{% url 'infocards:infocard' shop.id %}" method="post">
+        {% csrf_token %}
+        <div>카테고리 입력란</div>
+        <input type="text" name="type" value="category" style="display:none">
+        <input type="text" name="name" placeholder='카테고리이름을 입력해주세요' value="{{cat_form.name.value|default:''}}"><br>
+        <button type="submit">확인</button>
+    </form>
+</div>
+{% endblock %}
+{% block _scripts %}
+{% endblock %}

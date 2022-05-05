@@ -1,0 +1,50 @@
+.card-con{
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: space-around;
+    --sys-green: 16,185,129,1;
+    --sys-red: 220,38,38,1;
+    
+}
+.mx-w{
+    width:80vw;
+}
+@media all and (min-width:1000px){
+
+    .mx-w{
+        width:800px;
+    }
+}
+.shop-card{
+    border : 1px gray solid;
+    width : 200px;
+    height : 125px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space:nowrap;
+    margin : 5px 5px 5px 5px;
+    transition: transform 0.3s;
+}
+.shop-card:hover{    
+    transform: scale(0.92);
+}
+
+.shop-card > .title{
+    font-size:20px;
+}
+
+.shop-card > .elements{
+    font-size:15px;
+}
+.elements:hover{    
+    --tw-text-opacity: 1;
+    color: rgba(59, 130, 246, var(--tw-text-opacity));	
+    transform: scale(1.12);
+}
+
+.shop-card > .spaces{
+    margin-top:5px;
+    margin-bottom:5px;
+}

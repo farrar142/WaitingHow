@@ -1,0 +1,58 @@
+{% extends 'shops/layout.html' %}
+{% block scripts %}
+{% endblock %}
+{% block content%}
+<style>
+    input[type="text"]{
+        padding: 5px 10px;
+        margin-bottom: 15px;
+    }
+</style>
+<div>
+    <div>
+        <form action="{% url 'shops:register' %}" method="post">
+            {% csrf_token %}
+            <div>가게이름</div>
+            <input type="text" name = "name" value="{{ form.name.value|default:''}}" autocomplete="off"/>
+            <div>사업자번호</div>
+            <input type="text" name = "bizNum" id = "fixed_bizNum" value="{{ form.bizNum.value|default:''}}" autocomplete="off" disabled/>
+            <input type="text" name = "bizNum" id = "fixed_bizNum"value="{{ form.bizNum.value|default:''}}" autocomplete="off" style="display:none"/>
+            <div>우편번호</div>
+            <input type="text" name = "zipNo1" id = "fixed_zipNo" value="{{ form.zipNo.value|default:''}}" disabled >
+            <input type="text" name = "zipNo" id = "fixed_zipNo" value="{{ form.zipNo.value|default:''}}" style="display:none">
+            <div>도로명주소</div>
+            <input type="text" name = "address1" id = "fixed_address" value="{{ form.address.value|default:''}}" disabled>
+            <input type="text" name = "address" id = "fixed_address" value="{{ form.address.value|default:''}}" style="display:none">
+            <div>상세주소</div>
+            <input type="text" name = "detailAddress" id = "detailAddress" value="{{ form.detailAddress.value|default:''}}" placeholder="ex)매화빌딩 103호">
+            <input type="text" name = "lat" id = "lat" value="{{ form.lat.value|default:''}}" style="display:none"/>
+            <input type="text" name = "lng" id = "lng" value="{{ form.lng.value|default:''}}" style="display:none"/>
+            <br>
+            <button type="submit">확인</button>
+        </form>
+        <form method="get"onsubmit= "get_bizNum();return false">
+            <div>사업자번호 검색</div>
+            <input type="number" id = "biz_num" name = "biz_num"
+            value="{{ form.biz_num.value|default_if_none:''}}" autocomplete="off"
+            placeholder="ex)123-456-7890"/>
+            <button>사업자번호확인</button>
+        </form>
+        <form method="get"onsubmit= "page = 1;get_address();return false">
+            <div>주소 검색</div>
+            <input type="text" id = "location" name = "location"
+            value="{{ form.location.value|default_if_none:''}}" autocomplete="off"
+            placeholder="ex)대성동, 둔산동"/>
+            <button>주소확인</button>
+        </form>
+        <div id='render_location_here'></div><input type='number' style='display:none'id='location_page' value=1>
+        
+        <div id="map" style="width:500px;height:400px;margin:auto;"></div>
+        
+    </div>
+    //가게정보등록창//
+</div>
+{% endblock %}
+
+{% block _scripts %}
+{% include 'shops/addr_finder.html' %}
+{% endblock %}

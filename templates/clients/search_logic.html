@@ -1,0 +1,358 @@
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2a4ee9232f3e8338415d61da0903a7c9&libraries=services"></script>
+<script>
+
+    //ajax코드를 기반으로 json에 가변인자를 넘길수 있는 함수를 만들어보겠음
+
+    function test(lat,lng){
+        var currentPos = new kakao.maps.LatLng(lat,lng);
+        //현재 위치를 기반으로 주변에 등록되어있는 가게를 보여줌
+        $.get(
+            "{% url 'shops:filter' %}",
+            {
+                lat,
+                lng,
+                range:map.getLevel()
+            },
+            //등록된 가게들에서 정보를 가져와 뿌려줌
+            function(data){
+                for (shopKey in data['shop']){             
+                    var peoples = 0;
+                    var teams = 0;
+                    var _datas = {
+                        "shop_id":data['shop'][shopKey]['id']
+                    }
+                    //https://integer-ji.tistory.com/263
+                    $.ajax({
+                        type : "GET",
+                        url:"{% url 'waitings:show_teams' %}",
+                        dataType:"json",
+                        contentType : 'application/json', 
+                        data : _datas,
+                        success:function(how_many){
+                            peoples = how_many['peoples'];
+                            teams = how_many['teams'];
+                            shop = data['shop'][shopKey]
+                            infos = data['infos'][shopKey]
+                            shop_marker_maker(shop,infos,peoples,teams,shopKey);
+                        },
+                        errors:function(request,status,error){
+                            console.log('실패');
+                        },
+                        async:false
+                    });
+
+                }
+            },
+            'json'
+        );
+
+    }
+
+    var container = document.getElementById('map');
+    var options = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 2,
+        mapTypeId : kakao.maps.MapTypeId.ROADMAP
+    };
+
+    var map = new kakao.maps.Map(container, options);
+    var overlay_idx = 0;
+    var markers=[];
+    var overlays=[];
+    var cur_marker;
+    var cur_loc=[];
+    var cur_infos=[];
+    var cur_lat;
+    var cur_lng;
+
+
+    
+    kakao.maps.event.addListener(map, 'tilesloaded', cb); 
+    function cb(){
+        cur_marker.setPosition(map.getCenter()); 
+        make_cur_marker(map.getCenter());
+        search_shops(cur_lat,cur_lng);
+    }
+    //위도와 경도를 기반으로 매장을 검색하는 함수입니다.
+    function search_shops(lat,lng){
+        var currentPos = new kakao.maps.LatLng(lat,lng);
+        //현재 위치를 기반으로 주변에 등록되어있는 가게를 보여줌
+        $.get(
+            "{% url 'shops:filter' %}",
+            {
+                lat,
+                lng,
+                range:map.getLevel()
+            },
+            //등록된 가게들에서 정보를 가져와 뿌려줌
+            function(data){
+                for (shopKey in data['shop']){             
+                    var peoples = 0;
+                    var teams = 0;
+                    var _datas = {
+                        "shop_id":data['shop'][shopKey]['id']
+                    }
+                    //https://integer-ji.tistory.com/263
+                    $.ajax({
+                        type : "GET",
+                        url:"{% url 'waitings:show_teams' %}",
+                        dataType:"json",
+                        contentType : 'application/json', 
+                        data : _datas,
+                        success:function(how_many){
+                            peoples = how_many['peoples'];
+                            teams = how_many['teams'];
+                            shop = data['shop'][shopKey]
+                            infos = data['infos'][shopKey]
+                            shop_marker_maker(shop,infos,peoples,teams);
+                        },
+                        errors:function(request,status,error){
+                            console.log('실패');
+                        },
+                        async:false
+                    });
+
+                }
+            },
+            'json'
+        );
+
+    }
+    //현재 위치마커를 만드는 함수입니다.
+    function make_cur_marker(coord){
+        
+        cur_lat=coord["Ma"]
+        cur_lng=coord["La"]
+        // 마커 생성
+        var marker = new kakao.maps.Marker({
+            map: map,
+            draggable:true,
+            position: coord
+        });
+        marker.setZIndex(1)
+        cur_marker = marker;
+        kakao.maps.event.addListener(marker, 'dragend', function() {
+            // 출발 마커의 드래그가 종료될 때 마커 이미지를 원래 이미지로 변경합니다
+            _cur_loc = marker.getPosition()
+           make_cur_marker(_cur_loc);
+           search_shops(_cur_loc["Ma"],_cur_loc["La"]);
+        });
+        var infowindow = new kakao.maps.InfoWindow({
+            content: `<div style="width:150px;text-align:center;padding:6px 0;">현재위치</div>`,
+            removable:true,
+        });
+        closeCurLoc()
+        cur_loc.push(marker);
+        cur_infos.push(infowindow);
+        infowindow.open(map, marker);
+        map.setCenter(coord);
+
+    }
+    function 매장이존재하는지(shop){
+        for (i in markers){
+            a = markers[i].getPosition();
+            f_l = 12
+            if ((a["La"].toFixed(f_l)==Number(shop['lng']).toFixed(f_l))
+            &&(a["Ma"].toFixed(f_l)==Number(shop['lat']).toFixed(f_l))){
+                return true;
+            }
+        }
+        return false
+
+    }
+    //매장 오버레이와 마커를 만드는 함수입니다.
+    function shop_marker_maker(shop,infos,peoples,teams){
+        //console.log({shop,infos});
+        if (매장이존재하는지(shop)){
+            return
+        }
+        //console.log("통과됨",infos[0]['image'])
+        //카카오맵에 위치 등록
+        //인포 윈도우 생성
+        let info_image=""
+        let info_content=""
+        if (peoples == ''){
+            peoples=0
+        }
+        if (teams == ''){
+            teams=0
+        }
+        if (infos.length != 0){
+            info_image = "/media/"+infos[0]['image']
+            info_content = infos[0]['content']
+        }else{
+            info_image = ""
+            info_content = ""
+        }
+        var near_shop = new kakao.maps.LatLng(shop['lat'],shop['lng']);                    
+        //등록된 위치를 기반으로 마커 생성
+        var marker = new kakao.maps.Marker({
+            position: near_shop,
+        });
+        
+        if (info_image!=0){
+            info_image = `<img class="img" src="${info_image}" alt="매장정보"/>`            
+        }
+        
+        if (shop["active"]){
+            active = `<div class='ellipsis' style='color: rgba(var(--sys-green));'>영업중</div>`
+        }else{
+            active = `<div class='ellipsis' style='color: rgba(var(--sys-red));'>영업종료</div>`
+        }
+        var content =`
+            <div class="cus_wrap" onmouseover="hoverLaysFront(${overlays.length})"onmouseout="hoverLaysBack(${overlays.length})"">
+                <div class="info">
+                    <div class="title gotgam" >
+                        <div class="close" onclick="closeOverlay(${overlay_idx})" title="닫기"></div>
+                        ${shop['name']}
+                    </div>
+                    <div class="body" onclick="openWaiting(${shop['id']},${shop["active"]})">
+                        <div class="desc">
+                            <div class="ellipsis">대기팀 : ${teams}팀</div> 
+                        <div class="ellipsis">대기인 : ${peoples}명</div> 
+                        ${active}
+                        <div class="ellipsis">${info_content}</div> 
+                    </div>
+                    ${info_image}
+                </div>   
+            </div>`; 
+        var overlay = new kakao.maps.CustomOverlay({
+            content,
+            map:map,
+            position:marker.getPosition()
+        });
+        //마커 클릭시 오버레이를 여는 함수입니다        
+        kakao.maps.event.addListener(marker, 'click', function() {
+            if (overlay.getVisible()){
+                overlay.setMap(null);
+                overlay.setVisible(false);
+            }else{
+                overlay.setMap(map);
+                overlay.setVisible(true);
+            }
+        });
+        markers.push(marker);
+        overlays.push(overlay)
+        marker.setMap(null);
+        marker.setMap(map);
+        overlay_idx ++;
+    }
+    //웨이팅 팝업창을 여는 함수입니다.
+    function openWaiting(idx,bool){
+        if(bool){
+            window.open(`/waitings/${idx}/add/remote?shop_id=${idx}`,'팝업창', 'width=700px,height=800px,scrollbars=yes');
+        }else{
+            alert("영업이 종료되었습니다.");
+        }
+    }
+    function hoverLaysFront(idx){
+        overlays[idx].setZIndex(100)
+    }
+    function hoverLaysBack(idx){
+        overlays[idx].setZIndex(0)
+    }
+
+    //오버레이를 닫는 함수입니다
+    function closeOverlay(idx) {
+        overlays[idx].setMap(null);
+        overlays[idx].setVisible(false);   
+    }
+    //커스텀 마커와 오버레이를 닫는 함수입니다.
+    function closeSomething(list_marker){
+        for (i in list_marker){
+            list_marker[i].setMap(null);
+        }
+    }
+    //커스텀 마커와 오버레이를 닫는 함수입니다.
+    function closeCurLoc(){
+        for (i in cur_loc){
+            cur_loc[i].setMap(null);
+        }
+        for (i in cur_infos){
+            cur_infos[i].close();
+        }
+    }
+    function locationLoadSuccess(pos){
+        // 현재 위치 받아오기
+        // 마커 생성
+        make_cur_marker(new kakao.maps.LatLng(pos.coords.latitude,pos.coords.longitude))
+        // 샵 검색
+        search_shops(pos.coords.latitude,pos.coords.longitude);
+    };
+    //위도,경도를 기반으로 마커와 인포윈도우를 생성하는 함수입니다.
+    function locationLoadError(pos){
+        alert('위치 정보를 가져오는데 실패했습니다.');
+    };
+
+    // 위치 가져오기 버튼 클릭시
+    function getCurrentPosBtn(){
+        navigator.geolocation.getCurrentPosition(locationLoadSuccess,locationLoadError);//위치정보 가져오는 함수.
+    }; 
+var page = 1;
+var perPage =10;
+    //주소창의 좌표로 마커를 생성합니다.
+    function move_to_cur_loc(idx){
+        lat=$('#location'+idx).attr("data-lat");
+        lng = $('#location'+idx).attr("data-lng");
+        make_cur_marker(new kakao.maps.LatLng(lat,lng));
+        
+    }
+    //매장의 정보를 바탕으로 주소리스트를 검색합니다
+    function render_shops(data){
+        html = '';
+        idx = 1;
+        if (data.total_count!='0'){
+            for (let shopKey in data.shop){
+                shop = data.shop[shopKey]
+                short_loc = shop['address'].split(" ")
+                html += (`
+                    <li id ='location${idx}' data-lat="${shop["lat"]}" data-lng="${shop["lng"]}">
+                        <span>가게이름</span><span> : ${shop['name']}</span>
+                        <span>주소</span><span>  :${short_loc[0]+" "+short_loc[1]}</span><br>
+                        <button onclick=move_to_cur_loc(${idx})>선택</button>
+                    </li>
+                `);
+                idx++;
+            }
+            // 이전 - 다음페이지 구현
+            if (page >1){
+                html +=(`<button onclick=page_set(-1)>이전페이지</button>`);
+            }else{
+                html +=(`<button disabled>이전페이지</button>`);
+            }
+            html +=(`<span>[${page}]</span>`)
+            if((total_count - page*perPage)>=0){
+                html +=(`<button onclick=page_set(1)>다음페이지</button>`);
+            }else{
+                html +=(`<button disabled>다음페이지</button>`);
+            }
+            $('#render_shops').html(html);
+        }else{
+            $('#render_shops').html('<div>정보가 없습니다</div>');
+        }
+    }    
+    function page_set(page_val){
+        //페이지 전역변수를 통해 페이지제어
+        page = page + page_val;
+        get_shops();
+    }
+    function get_shops(){
+        $.get(
+            '{% url "shops:get_shops" %}',
+            {  
+                'shop_name':$('.searchShopkey').val(),
+                'page':page,
+                'perPage':perPage,
+            },
+            function(data){
+                $('#render_shops').html('');
+                total_count = data.total_count;//마지막 페이지를 찾기 위함.
+                render_shops(data);
+            },
+            'json'
+        );
+        return false;
+    }
+    getCurrentPosBtn();
+</script>

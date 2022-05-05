@@ -1,0 +1,50 @@
+{% extends 'waitings/layout.html' %}
+{% block scripts %}
+{% include 'waitings/howmany_logic.html' %}
+{% endblock %}
+{% block content%}
+
+<div>
+    <div id = "dataset" data-value = "{{shop.id}}" style="display:none"></div>
+    <div>
+        <form class="iamform"action="{% url 'waitings:add_people' shop.id %}" method="post">
+            {% csrf_token %}
+            <div>
+                <div>성인</div>
+                <input type="text" name = "phone_number" value="{{request.POST.phone_number}}" style = "display:none">
+
+                <button class="adults_minus searchButton">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" autocomplete='off' class = "adults searchBox w-500" name = "adults" value=0 min="0">
+                <button class="adults_plus searchButton">
+                    <i class="fas fa-plus"></i>
+                </button>      
+            </div>
+            <div>
+                <div>유아</div>
+                <button class="kids_minus searchButton">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" autocomplete='off' class = "kids searchBox w-500" name = "kids" value=0>
+                <button class="kids_plus searchButton">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="flex flex-ai-c flex-jc-c">
+                <a class="searchButton m-50" href="{% url 'waitings:views' shop.id %}">
+                    <i class="fas fa-backspace"></i>
+                </a>
+                <button type="submit" class="searchButton m-50" value = "작성">
+                    <i class="fas fa-check-circle"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    <div>
+    </div>
+</div>
+{% endblock %}
+{% block _scripts %}
+{% include 'waitings/inspector_scripts.html' %}
+{% endblock %}

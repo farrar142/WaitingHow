@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+  waiting_how:
+    healthcheck:
+      test: ["CMD","curl","-f", "http://172.17.0.1:8040",]
+      interval: 10m
+      retries: 30
+      start_period: 60s
+    build:
+      dockerfile: deploy/dockerfile
+      context : .
+    container_name : ${CONTAINER_NAME}
+    volumes:
+        - ./docker_projects/nginx__1/data/site_projects/waiting/media:/usr/src/app/media
+        - ./docker_projects/nginx__1/data/site_projects/waiting/static:/usr/src/app/static
+    ports:
+        - ${PORT}:8040
+    restart: unless-stopped
+    # cpus: .10
+    # mem_limit: "512M"

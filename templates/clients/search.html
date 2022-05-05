@@ -1,0 +1,26 @@
+{% extends 'clients/layout.html' %}
+{% block script %}
+{% endblock %}
+{% block styles %}
+{% include 'clients/kakaomapstyle.html' %}
+{% endblock %}
+{% block content%}
+<div>
+    <form>
+        <input type="text" name="shop_name" class="searchShopkey searchBox" placeholder="검색어를 입력해 주세요">
+        <button type="submit" class="searchShop searchButton" onclick="get_shops();return false;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span class="mx">검색</span>
+        </button>
+    </form>
+    <div id="render_shops"></div>
+</div>
+<div class="map-search">
+    <div class="searchResult"></div>
+    <div id="map" class="map" style ="width:90vw;height:80vh;"></div>
+</div>
+{% endblock %}
+
+{% block _scripts %}
+{% include 'clients/search_logic.html' %}
+{% endblock %}

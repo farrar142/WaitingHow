@@ -1,0 +1,78 @@
+d<script type="text/javascript">
+    let WaitingList__lastWaitingId = 0;
+    let shop_id = $('#dataset').attr('data-value');
+    function WaitingList__loadMore() {
+        $.get(
+            '{% url "shops:get_waiting_list" %}', 
+            {
+                from_id: WaitingList__lastWaitingId,
+                shop_id,
+            },
+            function(data) {
+                console.log(data)
+                for ( let waitingKey in data.waitings ) {
+                    const waiting = data.waitings[waitingKey];
+                    WaitingList__lastWaitingId = waiting.id;
+                    console.log(WaitingList__lastWaitingId);
+                    WaitingList__renderMessage(waiting,waitingKey);
+                }    
+                setTimeout(WaitingList__loadMore, 1000);
+            },
+            'json'
+        );
+    }
+    function WaitingList__renderMessage(message,waitingKey) {
+        console.log("호출여부",message['is_called']);
+        $('.waiting-admin').append(`
+        <div class="flex waiting-row gotgam">
+            <div class="waiting-td m-auto">
+                <div>
+                ${parseInt(waitingKey)+1}.
+                <span class="mx-1000-word">번</span>
+                </div>
+            </div>
+            <div class="waiting-td m-auto">
+                ${message.how_many}
+                <span class="mx-1000-word">명</span>
+            </div>
+            <div class="waiting-td">`
+                +WaitingList__ActionForm(message,"{% url 'shops:enter' %}","입장","fas fa-sign-in-alt")+
+            `</div>
+            <div class="waiting-td">`
+                +WaitingList__ActionForm(message,"{% url 'shops:remove' %}","제거","fas fa-trash")+
+            `</div>
+            <div class="waiting-td">`
+                +WaitingList__ActionForm(message,"{% url 'shops:call' %}","호출","fas fa-envelope")+
+            `</div>
+            <div class="waiting-td">`
+                +is_called(message)+
+            `</div>
+        </div>`);
+    }
+    function WaitingList__ActionForm(message,url,syntax,fontawesome){
+        
+        context = `            
+            <form action=${url} onsubmit="WaitingList_Action(this); return false;">
+                <input type="text" style="display:none" style=""name="message_id" value='${message.id}'>
+                <input type="text" style="display:none" style=""name="shop_id" value={{shop.id}}>
+                <button type="submit" class = "searchButton">
+                    <span class="mx-waiting-words gotgam">${syntax}</span>
+                    <i class="${fontawesome} mx-waiting-icons"></i>
+                </button>
+            </form>  
+        `
+        return context;
+    }
+    function is_called(message){
+        if(message['is_called']){
+           context =  `<div class="searchButton"><i class="safe fas fa-bell"></i>
+           </div>`
+        }else{
+            context =  `<div class="searchButton ">
+                <i class="warn far fa-bell"></i>
+            </div>`
+        }
+        return context
+    }
+    WaitingList__loadMore();
+</script>

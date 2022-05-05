@@ -1,0 +1,30 @@
+{% extends 'shops/layout.html' %}
+{% load bootstrap3 %}
+{% block scripts %}
+{% endblock %}
+{% block content%}
+    {% if shop.info_set.all %}
+        {% for info in shop.info_set.all %}
+        <div>
+        {% if info.image %}
+        <img style = "margin:auto;width:100px;height:100px; "src="{{info.image.url}}" alt="">
+        {% endif %}
+        {{info.content|linebreaks}}
+        </div>
+        <a href="{% url 'infocards:info_remove' shop.id info.id %}">삭제</a>
+        <form action="{% url 'infocards:info_edit' shop.id info.id %}" method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form form %}         
+            <input type="submit" value="수정"/>
+        </form>
+        {% endfor %}
+    {% else %}    
+    <form action="{% url 'infocards:info' shop.id %}" method="post" class="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% bootstrap_form form %}         
+        <input type="submit" value="확인"/>
+    </form>
+    {% endif %}
+{% endblock %}
+{% block _scripts %}
+{% endblock %}

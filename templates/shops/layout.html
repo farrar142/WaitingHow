@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+{% block head_scripts %}
+{% block scripts %}
+{% endblock %}
+{% endblock %}
+{% block head_styles %}
+{% block styles %}
+{% endblock %}
+{% endblock %}
+{% block app %}
+    {% if shop %}
+        <div style="text-align:center;">
+            {% comment %} 매장이름 크게 박아줄수있어요? {% endcomment %}
+            <h1 style="margin:auto;">{{shop.name}}</h1>
+        </div>
+    {% endif %}
+{% block content %}
+{% endblock %}
+{% endblock %}
+{% block foot_scripts %}
+{% block _scripts %}
+{% endblock  %}
+{% endblock %}

@@ -1,0 +1,9 @@
+django
+gunicorn
+pillow
+mysqlclient
+requests
+django-bootstrap3
+configparser
+django-dotenv
+unidecode

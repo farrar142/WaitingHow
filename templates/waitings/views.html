@@ -1,0 +1,19 @@
+{% extends 'waitings/layout.html' %}
+{% block content %}
+<div>
+    <div id = "dataset" data-value = "{{shop.id}}" style="display:none"></div>
+    <div>
+        <form id = "form" action="{% url 'waitings:add_waiting' shop.id %}" method="post">
+            {% csrf_token %}
+            
+            <input type="number" class='dd searchBox w-500' autocomplete='off' name = "phone_number" placeholder="전화번호 입력"value ="{{ request.POST.phone_number|default_if_none:'' }}" >
+            <button type="submit" class = "searchButton">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block _scripts %}
+{% include 'waitings/inspector_scripts.html' %}
+{% endblock %}

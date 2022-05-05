@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block app %}
+
+<div id="login-box">
+    <h2 class="tit gotgam">LOGIN</h2>
+    <div class="kakao-login-btn flex">
+        <a class="flex flex-jc-c flex-ai-c" type='submit' href = "{% url 'accounts:kakao_signin' %}"><i class="fas fa-comment"></i>카카오로그인</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block head_scripts %}
+{% block scripts %}
+{% endblock %}
+{% endblock %}
+{% block head_styles %}
+{% block styles %}
+{% endblock %}
+{% endblock %}
+{% block app %}
+    {% if shop %}
+    {% comment %}
+    매장에 관한 링크에 들어갔을때
+    최상단에 뜨는 구역이에요    
+    {% endcomment %}
+        <div style="text-align:center;">
+            {% comment %}
+            매장이름 크게 박아줄수있어요?
+            {% endcomment %}
+            <h1 style="margin:auto;">{{shop.name}}</h1>
+        </div>
+    {% endif %}
+    {% include 'waitings/inspector.html' %}
+{% block content %}
+{% endblock %}
+{% endblock %}
+{% block foot_scripts %}
+{% block _scripts %}
+{% endblock  %}
+{% endblock %}

@@ -1,0 +1,183 @@
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2a4ee9232f3e8338415d61da0903a7c9&libraries=services"></script>
+<script type="text/javascript">
+    let page = 1;
+    let perPage = 5;
+    let total_count = 0;
+    function get_bizNum(){
+        $.get(
+            '{% url "shops:get_biznum" %}',
+            {  
+                'keyword':$('#biz_num').val(),
+            },
+            function(data){
+                //console.log(data['status'])
+                if (data['status']==true){
+                    $('#fixed_bizNum').val(data['biz_num']);
+                    $('#fixed_bizNum').next().val(data['biz_num']);
+                }else{
+                    alert("검색 결과가 없습니다.")
+                }
+            },
+            'json'
+        )
+    }
+    function get_address(){
+        $.get(
+            '{% url "shops:get_address" %}',
+            {  
+                'keyword':$('#location').val(),
+                'page':page,
+                'perPage':perPage,
+            },
+            function(data){
+                //console.log(data)
+                $('#render_location').html('');
+                total_count = data.total_count;//마지막 페이지를 찾기 위함.
+                render_location(data);
+            },
+            'json'
+        )
+    }
+    function render_location(data){
+        html = '';
+        idx = 1;
+        if (data.total_count!='0'){
+            for (let locationKey in data.locations){
+                let location = data.locations[locationKey]['roadAddr'];
+                html += (`
+                    <li id ='location${idx}' data-location="${location}"
+                    data-zipNo="${data.locations[locationKey]['zipNo']}">
+                        <span>도로명</span><span> : ${location}</span><br>
+                        <span>지번</span><span>  :${data.locations[locationKey]['jibunAddr']}</span><br>
+                        <button onclick=fixing_location(${idx})>선택</button>
+                    </li>
+                `);
+                idx++;
+            }
+            // 이전 - 다음페이지 구현
+            if (page >1){
+                html +=(`<button onclick=page_set(-1)>이전페이지</button>`);
+            }else{
+                html +=(`<button disabled>이전페이지</button>`);
+            }
+            html +=(`<span>[${page}]</span>`)
+            if((total_count - page*perPage)>=0){
+                html +=(`<button onclick=page_set(1)>다음페이지</button>`);
+            }else{
+                html +=(`<button disabled>다음페이지</button>`);
+            }
+            $('#render_location_here').html(html);
+        }else{
+            $('#render_location_here').html('<div>정보가 없습니다</div>');
+        }
+    }
+    function page_set(page_val){
+        //페이지 전역변수를 통해 페이지제어
+        page = page + page_val;
+        get_address();
+    }
+    function fixing_location(idx){
+        _zipNo=$('#location'+idx).attr("data-zipNo");
+        _addr = $('#location'+idx).attr("data-location");
+        $('#fixed_zipNo').val(_zipNo);
+        $('#fixed_address').val(_addr);
+        $('#fixed_zipNo').next().val(_zipNo);
+        $('#fixed_address').next().val(_addr);
+        $('#render_location_here').html('');
+        show_cur_location(_addr)
+        
+    }
+    var container = document.getElementById('map');
+    var options = {
+        center: new kakao.maps.LatLng(33.450701, 126.570667),
+        level: 3,
+        mapTypeId : kakao.maps.MapTypeId.ROADMAP
+    };
+
+    var map = new kakao.maps.Map(container, options);    
+    var markers = [];
+    var infoWindows = [];
+
+    //kakao api
+    function locationLoadSuccess(pos){
+        // 현재 위치 받아오기
+        var currentPos = new kakao.maps.LatLng(pos.coords.latitude,pos.coords.longitude);
+
+        // 지도 이동(기존 위치와 가깝다면 부드럽게 이동)
+        map.panTo(currentPos);
+
+        // 결과값으로 받은 위치를 마커와 인포 윈도우로 표시합니다
+        make_marker(currentPos,"현재위치");
+
+    };
+
+    function locationLoadError(pos){
+        alert('위치 정보를 가져오는데 실패했습니다.');
+    };
+
+    // 위치 가져오기 버튼 클릭시
+    function getCurrentPosBtn(){
+        navigator.geolocation.getCurrentPosition(locationLoadSuccess,locationLoadError);//위치정보 가져오는 함수.
+    };
+
+    //입력된 주소를 kakao 맵에 표시합니다.
+    function show_cur_location(_addr){
+    // 주소-좌표 변환 객체를 생성합니다
+        var geocoder = new kakao.maps.services.Geocoder();
+
+        // 주소로 좌표를 검색합니다 ajax를 사용함으로 비동기콜백을이용함
+        geocoder.addressSearch(_addr, function(result, status) {
+
+            // 정상적으로 검색이 완료됐으면 
+            if (status === kakao.maps.services.Status.OK) {
+
+                var coords = new kakao.maps.LatLng(result[0].y, result[0].x);  
+
+                // 결과값으로 받은 위치를 마커와 인포 윈도우로 표시합니다
+                make_marker(coords,"현재위치");
+
+            }else{
+                getCurrentPosBtn();
+            }
+        });
+    }
+    function make_marker(xz,praise){
+        var marker = new kakao.maps.Marker({
+            map: map,
+            draggable:true,
+            position: xz
+        });
+        infowindow = new kakao.maps.InfoWindow({
+            content: `<div style="width:150px;text-align:center;padding:6px 0;">${praise}</div>`
+        });      
+        // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다 
+        map.panTo(xz);  
+        // 기존의 마커와 인포창들을 닫습니다.
+        closeMarkers();
+        closeInfowindows();
+        kakao.maps.event.addListener(marker, 'dragend', function() {
+            // 출발 마커의 드래그가 종료될 때 마커 이미지를 원래 이미지로 변경합니다
+            _cur_loc = marker.getPosition();
+            make_marker(_cur_loc,"현재위치")
+        });
+        // 마커와 인포창 배열에 마커와 인포창을 추가합니다.
+        infoWindows.push(infowindow)    
+        markers.push(marker)
+        // 마커와 인포창을 맵에 표시합니다.
+        infowindow.open(map, marker);   
+        marker.setMap(map); 
+        $('#lat').val(xz['Ma']);
+        $('#lng').val(xz['La']);
+    }
+    function closeMarkers() {
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
+        }            
+    }
+    function closeInfowindows() {
+        for (var i = 0; i < infoWindows.length; i++) {
+            infoWindows[i].close()
+        }            
+    }
+    show_cur_location($('#fixed_address').val());
+</script>

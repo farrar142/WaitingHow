@@ -1,0 +1,19 @@
+{% extends 'shops/layout.html' %}
+{% block scripts %}
+{% endblock %}
+{% block content%}
+<div>
+    가게 정보 수정 창이에요
+    <form action="{% url 'shops:location' shop.id %}"method="get">
+        <button type='submit' class="searchButton m-50">위치수정</button>
+    </form>
+    <form action="{% url 'infocards:infocard' shop.id %}"method="get">
+        <button type='submit' class="searchButton m-50">메뉴수정</button>
+    </form>
+    <form action="{% url 'infocards:info' shop.id %}"method="get">
+        <button type='submit' class="searchButton m-50">소개수정</button>
+    </form>
+</div>
+{% endblock %}
+{% block _scripts %}
+{% endblock %}

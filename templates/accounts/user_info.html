@@ -1,0 +1,42 @@
+{% extends 'accounts/layout.html' %}
+{% block app %}
+{% load accounts_filter %}
+<div>
+    <ul>
+        <li>
+            {% if waitings %}
+            <div>{{request.user}}님의 예약현황</div>
+            {% for waiting in waitings %}
+            <div>매장 : {{waiting.shop_name}}</div>
+            <div>남은 대기열 : {{waiting|get_count}}</div>
+            {% endfor %}
+            {% endif %}
+        </li>
+        <li class="flex flex-jc-c">
+            <a class="searchButton w-500" href="{% url 'accounts:edit_info' 'GET' %}">
+                <i class="fas fa-edit gotgam">매장등록</i>
+            </a>
+        </li>
+        <li class="flex flex-jc-c">
+            {% if request.user.have_shop %}
+            <div class="card-con mx-w">
+                {% for shop in shops_list %}
+                <div class="shop-card">
+                    <span  class ="title gotgam spaces">{{shop.name}}</span>
+                    <a class="elements spaces" href="{% url 'waitings:views' shop.id  %}">대기열 받기</a>
+                    <a class="elements spaces" href="{% url 'shops:admin' shop.id  %}">대기열 관리</a>
+                    <a class="elements spaces" href="{% url 'shops:settings' shop.id  %}">수정</a>
+                    {% if shop.is_active %}
+                    <a class="elements spaces safe" href="{% url 'shops:status' shop.id %}">영업중</a>
+                    {% else %}
+                    <a class="elements spaces warn" href="{% url 'shops:status' shop.id %}">영업종료</a>
+                    {% endif %}
+                </div>    
+                {% endfor %}
+            </div>
+            {% else %}
+            {% endif %}
+        </li>
+    </ul>
+</div>
+{% endblock %}

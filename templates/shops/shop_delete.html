@@ -1,0 +1,10 @@
+{% extends 'shops/layout.html' %}
+{% block content%}
+{% for shop in shops %}
+<form action="{% url 'shops:shop_remove' shop.id  %}" method="post">
+    {% csrf_token %}
+    <div>{{shop.name}}</div>
+    <button type='submit'>매장삭제</button>
+</form>
+{% endfor %}
+{% endblock %}

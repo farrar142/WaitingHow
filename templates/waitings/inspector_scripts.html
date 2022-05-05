@@ -1,0 +1,38 @@
+{% load sum %}
+<script type='text/javascript'>
+    shop_id = $('#dataset').attr('data-value');
+    function HowManyTeams__loadMore() {
+        $.get(
+            "{% url 'waitings:show_teams' %}", 
+            {shop_id},
+            function(data){
+                render(data);
+                setTimeout(HowManyTeams__loadMore, 1000);
+            }
+            ,
+            'json'
+        );
+    }
+    function render(data) {
+        $('.how-many-teams').html(`
+        <div>
+            <div>
+                대기팀 : 
+                ${data.teams}팀
+            </div>
+            <div>
+                대기인 :
+                ${data.peoples}명
+            </div>
+        </div> 
+        `);
+    }
+    HowManyTeams__loadMore();
+    $(document).ready(function() {
+        $(document).click(function(e){
+            $('.dd').focus();
+            console.log('test')
+        });
+    });
+
+</script>

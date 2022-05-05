@@ -1,0 +1,12 @@
+{% extends 'accounts/layout.html' %}
+{% block content%}
+<div class="flex flex-jc-c">
+    <div>
+        <a class="register-shop gotgam" href="{% url 'shops:register' %}"><i class="fas fa-home"></i>매장등록</a>
+    </div>
+    <div>
+        <a class="delete-shop gotgam" href="{% url 'shops:shop_remove' 0 %}"><i class="fas fa-times"></i>매장삭제</a>
+    </div>
+</div>
+
+{% endblock %}

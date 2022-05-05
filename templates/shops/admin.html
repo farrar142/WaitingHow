@@ -1,0 +1,18 @@
+{% extends 'shops/layout.html' %}
+{%load tags %}
+{% block scripts %}
+{% endblock %}
+{% block content %}
+<div class = "waiting-table">
+    <div id = "dataset" data-value = "{{shop.id}}" style="display:none"></div>
+    {% if waitings_list %}
+    <div class="waiting-admin  mx-wr">
+    </div>
+    {%else%}
+    <div>대기중인 손님이 없어요</div>
+    {%endif%}
+</div>
+{% endblock %}
+{% block _scripts %}
+{% include 'shops/admin_logic.html' %}
+{% endblock %}
